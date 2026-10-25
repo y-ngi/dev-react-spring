@@ -16,5 +16,9 @@ module "platform" {
   db_password              = var.db_password
   jwt_secret_name          = var.jwt_secret_name
   db_password_secret_name  = var.db_password_secret_name
+  mail_host                = var.mail_host
+  mail_username            = var.mail_username
+  mail_password_secret_name = var.mail_password_secret_name
+  mail_from                = var.mail_from
   protect_database         = true
 }

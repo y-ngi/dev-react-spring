@@ -104,7 +104,11 @@ resource "google_service_account" "backend" {
 }
 
 resource "google_secret_manager_secret_iam_member" "backend_secrets" {
-  for_each = toset([var.jwt_secret_name, var.db_password_secret_name])
+  for_each = toset([
+    var.jwt_secret_name,
+    var.db_password_secret_name,
+    var.mail_password_secret_name,
+  ])
 
   project   = var.project_id
   secret_id = each.value
@@ -138,7 +142,7 @@ resource "google_cloud_run_v2_service" "backend" {
 
       env {
         name  = "SPRING_DATASOURCE_URL"
-        value = "jdbc:mysql://${google_sql_database_instance.mysql.private_ip_address}:3306/${google_sql_database.app.name}"
+        value = "jdbc:mysql://${google_sql_database_instance.mysql.private_ip_address}:3306/${google_sql_database.app.name}?sslMode=REQUIRED"
       }
       env {
         name  = "SPRING_DATASOURCE_USERNAME"
@@ -160,6 +164,39 @@ resource "google_cloud_run_v2_service" "backend" {
             secret  = var.jwt_secret_name
             version = "latest"
           }
+        }
+        env {
+          name  = "SPRING_MAIL_HOST"
+          value = var.mail_host
+        }
+        env {
+          name  = "SPRING_MAIL_PORT"
+          value = "587"
+        }
+        env {
+          name  = "SPRING_MAIL_USERNAME"
+          value = var.mail_username
+        }
+        env {
+          name = "SPRING_MAIL_PASSWORD"
+          value_source {
+            secret_key_ref {
+              secret  = var.mail_password_secret_name
+              version = "latest"
+            }
+          }
+        }
+        env {
+          name  = "SPRING_MAIL_AUTH"
+          value = "true"
+        }
+        env {
+          name  = "SPRING_MAIL_STARTTLS"
+          value = "true"
+        }
+        env {
+          name  = "APP_MAIL_FROM"
+          value = var.mail_from
         }
       }
     }

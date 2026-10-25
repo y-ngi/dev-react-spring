@@ -57,9 +57,10 @@ terraform -chdir=terraform/environments/stg init \
 
 Supply environment-specific project, region, domain, globally unique frontend
 bucket, Cloud Run image, admin CIDRs, Cloud SQL password, and Secret Manager
-secret names through Terraform variables. The referenced Secret Manager secrets
-must contain the matching database password and a Base64-encoded JWT key of at
-least 32 bytes. Configure the `stg` and `prd` GitHub environments with
+secret names through Terraform variables. Configure `mail_host`, `mail_username`,
+`mail_from`, and a Secret Manager SMTP-password secret for production mail. The
+referenced secrets must contain the matching database password, SMTP password,
+and a Base64-encoded JWT key of at least 32 bytes. Configure the `stg` and `prd` GitHub environments with
 `GCP_PROJECT_ID`, `GCP_REGION`, `FRONTEND_BUCKET`, `URL_MAP`,
 `WORKLOAD_IDENTITY_PROVIDER`, and `DEPLOY_SERVICE_ACCOUNT` variables for the
 manual Deploy workflow. Select the branch in the workflow dispatch UI.

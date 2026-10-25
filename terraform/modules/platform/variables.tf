@@ -49,6 +49,22 @@ variable "db_password_secret_name" {
   type = string
 }
 
+variable "mail_host" {
+  type = string
+}
+
+variable "mail_username" {
+  type = string
+}
+
+variable "mail_password_secret_name" {
+  type = string
+}
+
+variable "mail_from" {
+  type = string
+}
+
 variable "protect_database" {
   type    = bool
   default = true

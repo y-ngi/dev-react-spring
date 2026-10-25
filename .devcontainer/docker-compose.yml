@@ -16,6 +16,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_MAIL_HOST: mailpit
       SPRING_MAIL_PORT: 1025
+      SPRING_MAIL_AUTH: false
+      SPRING_MAIL_STARTTLS: false
       APP_JWT_SECRET: ${APP_JWT_SECRET:?Set APP_JWT_SECRET to a base64-encoded key}
     depends_on:
       db:

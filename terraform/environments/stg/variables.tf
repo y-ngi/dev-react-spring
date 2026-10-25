@@ -14,3 +14,7 @@ variable "db_password" {
 }
 variable "jwt_secret_name" { type = string }
 variable "db_password_secret_name" { type = string }
+variable "mail_host" { type = string }
+variable "mail_username" { type = string }
+variable "mail_password_secret_name" { type = string }
+variable "mail_from" { type = string }
