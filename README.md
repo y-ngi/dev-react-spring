@@ -20,19 +20,24 @@ HTTPS Load Balancing.
 
 ## Local development
 
-Install Docker Compose, Node.js 24+, and Java 25 (or use the Dev Container).
-Set a local-only Base64 JWT key and start the stack:
+Install Docker and VS Code with the Dev Containers extension, open the repository
+root, and choose **Reopen in Container**. One workspace container provides Node.js
+24, Java 25, Gradle, and the frontend dependencies; MySQL and Mailpit run as
+separate Compose services. The stack forwards the frontend, API, database, and
+Mailpit ports. For command-line use, the Compose configuration includes a
+local-only JWT key by default; override it with a private Base64 key if desired:
 
 ```sh
 APP_JWT_SECRET="$(openssl rand -base64 32)" \
-  docker compose -f .devcontainer/docker-compose.yml up --build
+  docker compose -f .devcontainer/docker-compose.yml up
 ```
 
-The frontend is at `http://localhost:5173`, the API at `http://localhost:8080`,
-Mailpit at `http://localhost:8025`, and MySQL at port `3306`. The local database
-is initialized by Flyway. Provision user records with BCrypt password hashes
-before testing login; the application intentionally has no public registration
-endpoint.
+Open two terminals in the integrated workspace and run `cd frontend && npm run
+dev` and `cd backend && ./gradlew bootRun`. The frontend is at
+`http://localhost:5173`, the API at `http://localhost:8080`, Mailpit at
+`http://localhost:8025`, and MySQL at port `3306`. The local database is
+initialized by Flyway. Provision user records with BCrypt password hashes before
+testing login; the application intentionally has no public registration endpoint.
 
 ## Checks
 

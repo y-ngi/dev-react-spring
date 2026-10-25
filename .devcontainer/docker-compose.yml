@@ -1,14 +1,17 @@
 services:
-  backend:
-    build:
-      context: ../backend
+  app:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    init: true
     working_dir: /workspace
     volumes:
-      - ../backend:/workspace
-      - gradle-cache:/home/gradle/.gradle
-    command: ./gradlew bootRun --no-daemon
+      - ..:/workspace:cached
+      - gradle-cache:/home/vscode/.gradle
+    command: sleep infinity
     ports:
+      - "5173:5173"
       - "8080:8080"
+      - "3306:3306"
+      - "8025:8025"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/app_db
@@ -18,24 +21,12 @@ services:
       SPRING_MAIL_PORT: 1025
       SPRING_MAIL_AUTH: false
       SPRING_MAIL_STARTTLS: false
-      APP_JWT_SECRET: ${APP_JWT_SECRET:?Set APP_JWT_SECRET to a base64-encoded key}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:-ZGV2Y29udGFpbmVyLWxvY2FsLW9ubHktand0LWtleS0zMi1ieXRlcw==}
     depends_on:
       db:
         condition: service_healthy
       mailpit:
         condition: service_started
-
-  frontend:
-    image: node:24-alpine
-    working_dir: /workspace/frontend
-    volumes:
-      - ../frontend:/workspace/frontend
-      - frontend-modules:/workspace/frontend/node_modules
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
 
   db:
     image: mysql:8.4
@@ -63,6 +54,5 @@ services:
       - "1025:1025"
 
 volumes:
-  frontend-modules:
   gradle-cache:
   mysql-data:

@@ -1,8 +1,30 @@
 {
-  "name": "dev-react-spring",
+  "name": "Fullstack React & Spring Boot",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "frontend",
-  "workspaceFolder": "/workspace/frontend",
-  "forwardPorts": [5173, 8080, 3306, 8025],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "25",
+      "installGradle": true
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "cweijan.vscode-mysql-client2",
+        "vitest.explorer"
+      ]
+    }
+  },
+  "forwardPorts": [5173, 8080, 8025, 3306],
+  "postCreateCommand": "cd /workspace/frontend && npm install",
   "shutdownAction": "stopCompose"
 }
