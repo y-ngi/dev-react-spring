@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +31,11 @@ public class AuthController {
             @Value("${app.cookie.secure:true}") boolean secureCookie) {
         this.authService = authService;
         this.secureCookie = secureCookie;
+    }
+
+    @GetMapping("/csrf")
+    public CsrfResponse csrfToken(CsrfToken csrfToken) {
+        return new CsrfResponse(csrfToken.getToken());
     }
 
     @PostMapping("/login-request")
@@ -60,4 +67,6 @@ public class AuthController {
     public record VerifyRequest(
             @NotBlank @Email String email,
             @NotBlank @Pattern(regexp = "[0-9]{6}") String code) {}
+
+    public record CsrfResponse(String token) {}
 }

@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -21,6 +22,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -79,6 +81,14 @@ class AuthorizationIntegrationTest {
         mockMvc.perform(get("/api/users/me")
                         .cookie(new Cookie("access_token", "invalid")))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void rejectsStateChangingRequestsWithoutACsrfToken() throws Exception {
+        mockMvc.perform(post("/api/auth/login-request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isForbidden());
     }
 
     @Test

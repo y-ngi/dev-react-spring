@@ -5,10 +5,13 @@ type Credentials = { email: string; password: string }
 type Verification = { email: string; code: string }
 
 async function post<T>(path: string, body: T) {
+  const csrfResponse = await fetch('/api/auth/csrf', { credentials: 'include' })
+  if (!csrfResponse.ok) throw new Error('The request could not be completed.')
+  const { token } = (await csrfResponse.json()) as { token: string }
   const response = await fetch(path, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': token },
     body: JSON.stringify(body),
   })
   if (!response.ok) throw new Error('The request could not be completed.')
