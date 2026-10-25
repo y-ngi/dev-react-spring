@@ -1,0 +1,43 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        type: choice
+        required: true
+        options:
+          - stg
+          - prd
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      FRONTEND_BUCKET: ${{ vars.FRONTEND_BUCKET }}
+      URL_MAP: ${{ vars.URL_MAP }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: google-github-actions/auth@v2.1.10
+        with:
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2.1.4
+      - run: npm ci && npm run build
+        working-directory: frontend
+      - run: gcloud run deploy "${{ inputs.environment }}-backend" --source backend --region "$REGION" --project "$PROJECT_ID"
+      - run: gcloud storage rsync --recursive --delete-unmatched-destination-objects frontend/dist "gs://$FRONTEND_BUCKET"
+      - run: gcloud compute url-maps invalidate-cdn-cache "$URL_MAP" --path "/*" --global --project "$PROJECT_ID"

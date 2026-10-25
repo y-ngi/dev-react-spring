@@ -1,1 +1,65 @@
 # dev-react-spring
+
+A React and Spring Boot monorepo designed for a same-origin API behind Google Cloud
+HTTPS Load Balancing.
+
+## Architecture
+
+- `frontend/` is a React 19, TypeScript, and Vite SPA. API calls use `/api/*`;
+  Vite proxies those requests to the local backend.
+- `backend/` is a Java 25 / Spring Boot 3 application using `JdbcClient` and Flyway.
+  MySQL 8.4 is the authorization source of truth.
+- Login verifies a BCrypt password and emails a five-minute, one-use OTP. The
+  stored OTP is a SHA-256 hash. A successful verification issues a 15-minute JWT
+  in an `HttpOnly`, `SameSite=Lax` cookie.
+- JWTs contain only `sub`, `iat`, and `exp`. The security filter queries the
+  user's current status and role for every authenticated API request.
+- `terraform/` provisions Cloud Run behind a serverless NEG and HTTPS load
+  balancer, Cloud Armor IP/rate-limit rules, a CDN-enabled static bucket, and
+  private-IP Cloud SQL.
+
+## Local development
+
+Install Docker Compose, Node.js 24+, and Java 25 (or use the Dev Container).
+Set a local-only Base64 JWT key and start the stack:
+
+```sh
+APP_JWT_SECRET="$(openssl rand -base64 32)" \
+  docker compose -f .devcontainer/docker-compose.yml up --build
+```
+
+The frontend is at `http://localhost:5173`, the API at `http://localhost:8080`,
+Mailpit at `http://localhost:8025`, and MySQL at port `3306`. The local database
+is initialized by Flyway. Provision user records with BCrypt password hashes
+before testing login; the application intentionally has no public registration
+endpoint.
+
+## Checks
+
+```sh
+cd frontend && npm ci && npm test && npm run build
+cd ../backend && ./gradlew test
+```
+
+Backend authorization integration tests use Testcontainers and MySQL 8.4.
+
+## Google Cloud environments
+
+`terraform/environments/stg` and `terraform/environments/prd` use a GCS state
+backend. Create the state bucket first, then initialize with a restricted state
+bucket, for example:
+
+```sh
+terraform -chdir=terraform/environments/stg init \
+  -backend-config="bucket=YOUR_TERRAFORM_STATE_BUCKET" \
+  -backend-config="prefix=dev-react-spring/stg"
+```
+
+Supply environment-specific project, region, domain, globally unique frontend
+bucket, Cloud Run image, admin CIDRs, Cloud SQL password, and Secret Manager
+secret names through Terraform variables. The referenced Secret Manager secrets
+must contain the matching database password and a Base64-encoded JWT key of at
+least 32 bytes. Configure the `stg` and `prd` GitHub environments with
+`GCP_PROJECT_ID`, `GCP_REGION`, `FRONTEND_BUCKET`, `URL_MAP`,
+`WORKLOAD_IDENTITY_PROVIDER`, and `DEPLOY_SERVICE_ACCOUNT` variables for the
+manual Deploy workflow. Select the branch in the workflow dispatch UI.

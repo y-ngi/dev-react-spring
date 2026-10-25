@@ -1,0 +1,66 @@
+services:
+  backend:
+    build:
+      context: ../backend
+    working_dir: /workspace
+    volumes:
+      - ../backend:/workspace
+      - gradle-cache:/home/gradle/.gradle
+    command: ./gradlew bootRun --no-daemon
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/app_db
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_MAIL_HOST: mailpit
+      SPRING_MAIL_PORT: 1025
+      APP_JWT_SECRET: ${APP_JWT_SECRET:?Set APP_JWT_SECRET to a base64-encoded key}
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  frontend:
+    image: node:24-alpine
+    working_dir: /workspace/frontend
+    volumes:
+      - ../frontend:/workspace/frontend
+      - frontend-modules:/workspace/frontend/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: app_db
+      MYSQL_USER: app
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: local-root-password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+volumes:
+  frontend-modules:
+  gradle-cache:
+  mysql-data:
