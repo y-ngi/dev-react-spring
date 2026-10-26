@@ -1,0 +1,15 @@
+node_modules/
+frontend/dist/
+frontend/coverage/
+backend/.gradle/
+backend/build/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!.tfvars.example
+.env
+.env.*
+!.env.example
+!frontend/.env.development
+!frontend/.env.integration

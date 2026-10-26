@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: dev-react-spring-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/app_db}
+    username: ${SPRING_DATASOURCE_USERNAME:app}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+  flyway:
+    enabled: true
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_AUTH:false}
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS:false}
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET}
+    lifetime: PT15M
+  cookie:
+    secure: true
+  mail:
+    from: ${APP_MAIL_FROM:no-reply@example.com}

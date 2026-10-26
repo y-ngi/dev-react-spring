@@ -1,0 +1,26 @@
+{
+  "name": "Spring Boot Backend",
+  "dockerComposeFile": [
+    "docker-compose.yml",
+    "docker-compose.devcontainer.yml"
+  ],
+  "service": "backend-dev",
+  "workspaceFolder": "/workspace/backend",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "25",
+      "installGradle": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot",
+        "cweijan.vscode-mysql-client2"
+      ]
+    }
+  },
+  "forwardPorts": [8080, 8025, 3306],
+  "shutdownAction": "stopCompose"
+}

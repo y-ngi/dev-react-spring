@@ -1,0 +1,56 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #172033;
+  background: #f3f5f8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+main {
+  width: min(100% - 2rem, 28rem);
+  margin: 10vh auto;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  background: white;
+  box-shadow: 0 0.5rem 2rem #17203318;
+}
+
+form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+input,
+button {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+}
+
+button {
+  margin-top: 0.5rem;
+  border: 0;
+  border-radius: 0.4rem;
+  color: white;
+  background: #2257ad;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+[role='alert'] {
+  color: #a21c1c;
+}
