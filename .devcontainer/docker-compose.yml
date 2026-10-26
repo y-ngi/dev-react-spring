@@ -1,33 +1,4 @@
 services:
-  app:
-    image: mcr.microsoft.com/devcontainers/base:ubuntu
-    init: true
-    working_dir: /workspace
-    volumes:
-      - ..:/workspace:cached
-      - gradle-cache:/home/vscode/.gradle
-    command: sleep infinity
-    ports:
-      - "5173:5173"
-      - "8080:8080"
-      - "3306:3306"
-      - "8025:8025"
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/app_db
-      SPRING_DATASOURCE_USERNAME: app
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_MAIL_HOST: mailpit
-      SPRING_MAIL_PORT: 1025
-      SPRING_MAIL_AUTH: false
-      SPRING_MAIL_STARTTLS: false
-      APP_JWT_SECRET: ${APP_JWT_SECRET:-ZGV2Y29udGFpbmVyLWxvY2FsLW9ubHktand0LWtleS0zMi1ieXRlcw==}
-    depends_on:
-      db:
-        condition: service_healthy
-      mailpit:
-        condition: service_started
-
   db:
     image: mysql:8.4
     restart: unless-stopped
@@ -54,5 +25,4 @@ services:
       - "1025:1025"
 
 volumes:
-  gradle-cache:
   mysql-data:

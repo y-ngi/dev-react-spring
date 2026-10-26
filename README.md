@@ -20,24 +20,39 @@ HTTPS Load Balancing.
 
 ## Local development
 
-Install Docker and VS Code with the Dev Containers extension, open the repository
-root, and choose **Reopen in Container**. One workspace container provides Node.js
-24, Java 25, Gradle, and the frontend dependencies; MySQL and Mailpit run as
-separate Compose services. The stack forwards the frontend, API, database, and
-Mailpit ports. For command-line use, the Compose configuration includes a
-local-only JWT key by default; override it with a private Base64 key if desired:
+Frontend development runs independently on Node.js 24. Start Vite with MSW
+enabled by default; API calls are mocked in the browser and do not require Docker
+or a running backend:
 
 ```sh
-APP_JWT_SECRET="$(openssl rand -base64 32)" \
-  docker compose -f .devcontainer/docker-compose.yml up
+cd frontend
+npm ci
+npm run dev
 ```
 
-Open two terminals in the integrated workspace and run `cd frontend && npm run
-dev` and `cd backend && ./gradlew bootRun`. The frontend is at
-`http://localhost:5173`, the API at `http://localhost:8080`, Mailpit at
-`http://localhost:8025`, and MySQL at port `3306`. The local database is
-initialized by Flyway. Provision user records with BCrypt password hashes before
-testing login; the application intentionally has no public registration endpoint.
+For frontend/backend integration checks, run the backend with its database and
+mail catcher as ordinary background containers, then start the frontend in API
+mode:
+
+```sh
+docker compose \
+  -f .devcontainer/docker-compose.yml \
+  -f .devcontainer/docker-compose.backend.yml \
+  up -d --build backend
+cd frontend && npm run dev:api
+```
+
+Stop the integration services with the same Compose file arguments and `down`.
+The frontend is at `http://localhost:5173`, the API at `http://localhost:8080`,
+Mailpit at `http://localhost:8025`, and MySQL at port `3306`. Flyway initializes
+the database. Provision user records with BCrypt password hashes before testing
+login; the application intentionally has no public registration endpoint.
+
+For backend development with Java tooling, open the repository's
+`.devcontainer/devcontainer.json` in VS Code and reopen in the Dev Container. It
+provides a Java 25/Gradle backend workspace, while MySQL and Mailpit remain
+separate services. The frontend is not installed in or required by this
+container.
 
 ## Checks
 
